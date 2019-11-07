@@ -127,6 +127,8 @@ class Speech:
     if remaining_text:
       segments.append(remaining_text)
 
+    for z in segments: print(z)
+
     return segments
 
   @staticmethod
@@ -176,7 +178,7 @@ class SpeechSegment:
 
   """ Text segment to be read. """
 
-  BASE_URL = "https://translate.google.com/translate_tts"
+  BASE_URL = "https://fanyi.baidu.com/gettts"
 
   session = requests.Session()
 
@@ -233,6 +235,15 @@ class SpeechSegment:
         audio_data = self.download(real_url)
         assert(audio_data)
         __class__.cache[cache_url] = audio_data
+
+
+      try:
+        __class__.segment_num += 1
+      except AttributeError:
+        __class__.segment_num = 1
+      with open(f'/tmp/seg{__class__.segment_num}.mp3','wb') as f:
+        f.write(audio_data)
+
     return audio_data
 
   def play(self, sox_effects=()):
@@ -260,15 +271,13 @@ class SpeechSegment:
     If cache_friendly is True, remove token from URL to use as a cache key.
     """
     params = collections.OrderedDict()
-    params["client"] = "tw-ob"
-    params["ie"] = "UTF-8"
-    params["idx"] = str(self.segment_num)
-    if self.segment_count is not None:
-      params["total"] = str(self.segment_count)
-    params["textlen"] = str(len(self.text))
-    params["tl"] = self.lang
-    lower_text = self.text.lower()
-    params["q"] = lower_text
+
+    params["lan"] = "en"
+    params["text"] = self.text.lower()
+    params["spd"] = 3
+    params["source"] = "web"
+
+    print("%s?%s" % (__class__.BASE_URL, urllib.parse.urlencode(params)))
     return "%s?%s" % (__class__.BASE_URL, urllib.parse.urlencode(params))
 
   def download(self, url):
