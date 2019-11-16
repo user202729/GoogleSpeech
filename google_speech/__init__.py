@@ -230,6 +230,15 @@ class SpeechSegment:
         audio_data = self.download(real_url)
         assert(audio_data)
         __class__.cache[cache_url] = audio_data
+
+
+      try:
+        __class__.segment_num += 1
+      except AttributeError:
+        __class__.segment_num = 1
+      with open(f'/tmp/seg{__class__.segment_num}.mp3','wb') as f:
+        f.write(audio_data)
+
     return audio_data
 
   def play(self, sox_effects=()):
