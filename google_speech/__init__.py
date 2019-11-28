@@ -103,10 +103,12 @@ class Speech:
     while len(remaining_text) > __class__.MAX_SEGMENT_SIZE:
       cur_text = remaining_text[:__class__.MAX_SEGMENT_SIZE]
 
-      # try to split at punctuation
-      split_idx = __class__.findLastCharIndexMatching(cur_text,
-                                                      # https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
-                                                      lambda x: unicodedata.category(x) in ("Ps", "Pe", "Pi", "Pf", "Po"))
+      split_idx = __class__.findLastCharIndexMatching(cur_text, lambda x: x in {'.', '!', '?'})
+      if split_idx is None:
+        # try to split at punctuation
+        split_idx = __class__.findLastCharIndexMatching(cur_text,
+                                                        # https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+                                                        lambda x: unicodedata.category(x) in ("Ps", "Pe", "Pi", "Pf", "Po"))
       if split_idx is None:
         # try to split at whitespace
         split_idx = __class__.findLastCharIndexMatching(cur_text,
